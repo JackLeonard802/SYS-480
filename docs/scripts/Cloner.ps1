@@ -35,7 +35,7 @@ $newVMSnap = Read-Host -Prompt "Enter the name for the snapshot of the new VM"
 $newVM | New-Snapshot -Name $newVMSnap
 
 # Removes linked clone
-$linkedVM | Remove-VM
+$linkedVM | Remove-VM -DeletePermanently
 
-# Displays VMss
+# Displays VMs
 Get-VM
