@@ -17,6 +17,8 @@ function 480Banner()
     Write-Host $banner
 }
 
+function mainMenu()
+
 function 480connect([string] $server)
 # connects to vCenter
 {
