@@ -1,0 +1,9 @@
+{
+    "vcenter_server" : "vcenter.jack.local",
+    "vm_folder" : "BASEVM",
+    "esxi_host" : "192.168.7.15",
+    "default_network" : "480-WAN",
+    "default_datastore" : "datastore1-super5",
+    "snapshot" : "Base"
+
+}  
