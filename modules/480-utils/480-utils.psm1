@@ -210,7 +210,7 @@ function linkedClone ($vm, $snapshot, $vmhost, $ds, $net)
         # Promts user for network adapter name:
         $hostPrompt = Read-Host -Prompt "Enter the network adapter you would like to use (default: $net)"
         # Assigns net adapter to linked VM
-        $linkedVM | Get-NetworkAdapter | Set-NetworkAdapter -NetworkName $hostPrompt -ErrorAction Stop
+        Get-VM $linkedVM | Get-NetworkAdapter | Set-NetworkAdapter -NetworkName $hostPrompt -ErrorAction Stop
         Write-Host "Network adapter assigned: $net" -ForegroundColor Green
     }
     catch
@@ -222,9 +222,9 @@ function linkedClone ($vm, $snapshot, $vmhost, $ds, $net)
         if ($uInput -eq "y" -or  "Y") 
         {
             # Define datastore
-            $linkedVM | Get-NetworkAdapter | Set-NetworkAdapter -NetworkName $net
+            Get-VM $linkedVM | Get-NetworkAdapter | Set-NetworkAdapter -NetworkName $net
             Write-Host "Network adapter assigned: $net" -ForegroundColor Green
-            
+
         }else {
             Write-Host "Goodbye"
             exit
