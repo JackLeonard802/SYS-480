@@ -17,8 +17,6 @@ function 480Banner()
     Write-Host $banner
 }
 
-function mainMenu()
-
 function 480connect([string] $server)
 # connects to vCenter
 {
@@ -92,7 +90,6 @@ function Select-VM([string] $folder)
             # Returns VM object
             return $selected_vm
         }
-
         
     }
     catch
@@ -223,7 +220,7 @@ function linkedClone ($vm, $snapshot, $vmhost, $ds, $net)
         # Uses default, else quits
         if ($uInput -eq "y" -or  "Y") 
         {
-            # Define datastore
+            # set network adapter
             Get-VM $linkedVM | Get-NetworkAdapter | Set-NetworkAdapter -NetworkName $net
             Write-Host "Network adapter assigned: $net" -ForegroundColor Green
 
@@ -232,5 +229,128 @@ function linkedClone ($vm, $snapshot, $vmhost, $ds, $net)
             exit
         }
     }
-    
+}
+
+function vSwitch([string] $vmHost)
+# Creates a virtual switch in vCenter
+{
+    # prompts user
+    $uInput = Read-Host "Would you like to create a new virtual switch? (y/n)"
+
+    if ($uInput -eq "y" -or $uInput -eq "Y")
+    {
+        $switchName = Read-Host "Please enter the name of the new virtual switch"
+        # Creates new switch
+        $vswitch =  New-VirtualSwitch -VMHost $vmHost -Name $switchName
+        
+        # Prompts user
+        $portPrompt = Read-Host "Create and assign port group? (y/n)"
+
+        if ($portPrompt -eq "y" -or $portPrompt -eq "Y")
+        {
+            # calls protgroup function
+            portGroup -vmHost $vmHost -vswitch $vswitch
+        }
+        elseif ($portPrompt -eq "n" -or $portPrompt -eq "N") 
+        {
+            # see ya
+            Write-Host "goodbye"
+            exit
+        }
+        else
+        {
+            # error message on invalid input
+            Write-Host "No valid input detected" -ForegroundColor Yellow
+        }
+        }
+        return $vswitch
+
+    elseif ($uInput -eq "n" -or $uInput -eq "N") 
+    {
+        # see ya
+        Write-Host "goodbye"
+        exit
+    }
+    else
+    {
+        # error message on invalid input
+        Write-Host "No valid input detected" -ForegroundColor Yellow
+        vSwitch
+    }
+}
+
+function portGroup([string] $vmHost, $vswitch)
+# Creates a portgroup in vcenter and assigns it to a virtual switch
+{
+    # Gathering input
+    $namePrompt = Read-Host "Enter the name of the new port group"
+    $vlanPrompt = Read-Host "Enter the VLAN ID"
+
+    # Assigns port
+    Get-VMHost -name $vmHost | Get-VirtualSwitch -name $vSwitch.Name | New-VirtualPortGroup -name $namePrompt -VLanId $vlanPrompt
+
+}
+
+function vmDetails([string] $vmName)
+# Gets the details of a chosen VM
+{
+    # Gathering details
+    $ip = (Get-VM -Name $vmName).Guest.IPAddress
+    $mac = Get-VM -Name $vmName | Get-NetworkAdapter | Select-Object -ExpandProperty MacAddress
+
+    # Prints Details
+    Write-Host "VM Name: $vmName"
+    Write-Host "VM IP Address: " $ip[0]
+    Write-Host "VM MAC Address: " $mac[0]
+}
+
+function startVM([string] $vmName)
+# Powers on a VM
+{
+    # Checks if vm is on
+    if (Get-VM -Name $vmName | Where-Object {$_.PowerState -eq "PoweredOn"})
+    {
+        Write-Host "VM is already powered on"
+    }
+    else
+    {
+        # Turns it on
+        Start-VM -VM $vmName -Confirm
+    }
+}
+
+function setNetwork([string] $vmName)
+# Sets the network adapter of a VM
+{
+    # Clears selection
+    $selected_adapter=$null
+
+    # Gets adapters from VM
+    $adapters = Get-VM -Name $vmName | Get-NetworkAdapter
+    $index = 1
+    foreach($adapter in $adapters)
+    {
+        # Lists each adapter for VM
+        Write-Host [$index] $adapter.Name
+        $index+=1
+    }
+
+    # Prompts user to pick adapter from index number
+    $pick_index =  Read-Host "Which index number [x] do you wish to pick?"
+
+    # Handles invalid index
+    if ($pick_index -gt $index -1)
+    {
+        # Notifies user of invalid index
+        Write-Host "Please select a valid network adapter" -ForegroundColor Yellow
+    }else 
+    {
+        # Selects adapter that user specified
+        $selected_adapter = $adapters[$pick_index -1]
+        Write-Host "You picked " $selected_adapter.Name
+        $hostPrompt = Read-Host "Enter the name of the virtual network to assign"
+        Get-VM -Name $vmName | Get-NetworkAdapter | Set-NetworkAdapter -NetworkName $hostPrompt -ErrorAction Stop
+        Write-Host "Network adapter assigned" -ForegroundColor Green
+    }
+
 }
