@@ -1,5 +1,5 @@
-- name: rocky config
-  hosts: rocky
+- name: ubuntu playbook
+  hosts: ubuntu
   tasks:
     - name: create the .ssh directory if it is not there
       file:
@@ -26,7 +26,7 @@
     - name: create a drop in entry in /etc/sudoers.d/480
       blockinfile:
         dest: /etc/sudoers.d/480
-        block: "{{ ansible_user }} ALL=(ALL) NOPASSWD: ALL"
+        block: "{{ ansible_user }} ALL=(ALL) NOPASSWD: ALL" 
       become: yes
     
     - name: set the hostname
@@ -40,21 +40,25 @@
         line: '127.0.1.1 {{ hostname }}'
       become: yes
 
-    - name: run nmcli
-      nmcli:
-        conn_name: "{{device}}"
-        ip4: "{{lan_ip}}/24"
-        gw4: "{{gateway}}"
-        state: present
-        type: ethernet
-        dns4:
-          - "{{name_server}}"
-          - "{{gateway}}"
-        method4: manual
+    # Change the dhcp ip address to static (10.0.5.30,31)
+    - name: Configure network
+      template:
+        src: "netplan.j2"
+        dest: "/etc/netplan/00-installer-config.yaml"
+        owner: root
+        group: root
+        mode: 0644
+      notify:
+        - Apply network changes
       become: yes
-    
+
     - name: bounce the box
       shell: "sleep5 && shutdown -r"
       become: yes
       async: 1
       poll: 0
+
+  handlers:
+    - name: Apply network changes
+      shell: netplan apply
+      become: yes

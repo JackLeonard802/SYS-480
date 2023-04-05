@@ -1,6 +1,16 @@
 linux:
   hosts:
   children:
+    ubuntu:
+      hosts:
+        10.0.5.81:
+          hostname: ubuntu-1
+          lan_ip: 10.0.5.30
+        10.0.5.82:
+          hostname: ubuntu-2
+          lan_ip: 10.0.5.31
+      vars:
+        device: ens160
     rocky:
       hosts:
         10.0.5.78:
@@ -14,11 +24,12 @@ linux:
           lan_ip: 10.0.5.12
       vars:
         device: ens192
-    
-    vars:
-      public_key: ""
-      ansible_user: deployer
-      prefix: 24
-      gateway: 10.0.5.2
-      name_server: 10.0.5.5
-      domain: blue1.local
+
+  vars:
+    public_key: "<key>"
+    ansible_user: deployer
+    prefix: 24
+    gateway: 10.0.5.2
+    name_server: 10.0.5.5
+    domain: blue1.local
+
