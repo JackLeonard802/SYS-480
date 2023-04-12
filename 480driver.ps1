@@ -6,6 +6,7 @@ function Show-Menu {
     Write-Host "3: Enter Virtual Network Configuration"
     Write-Host "4: Start a Virtual Machine"
     Write-Host "5: Assign the network adapter of a VM to a virtual network"
+    Write-Host "6: Edit VM settings"
     Write-Host "Q: Quit."
 }
 
@@ -68,6 +69,12 @@ do
         Write-Host "Selecting your VM"
         $selected_vm = Select-VM -folder $folder
         setNetwork -vmName $selected_vm.Name
+    }
+    '6' {
+        $folder = Read-Host "Enter the folder where the VM is stored"
+        Write-Host "Selecting your VM"
+        $selected_vm = Select-VM -folder $folder
+        editVM -vmName $selected_vm.Name
     }
     }
     pause

@@ -54,7 +54,7 @@
       become: yes
     
     - name: bounce the box
-      shell: "sleep5 && shutdown -r"
+      shell: "sleep 5 && shutdown -r"
       become: yes
       async: 1
       poll: 0

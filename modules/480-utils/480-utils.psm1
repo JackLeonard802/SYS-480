@@ -354,3 +354,56 @@ function setNetwork([string] $vmName)
     }
 
 }
+
+function editVM([string] $vmName)
+# edits some paramaters in VM settings
+{
+    editMem -vmName $vmName
+
+}
+
+function editMem([string] $vmName)
+# edits the memory of a VM
+{
+    $uInput = Read-Host "Would you like to edit the memory of the VM?"
+    if ($uInput -eq "y" -or $uInput -eq "Y")
+    {
+        $hostPrompt = Read-Host "Enter the amount of memory you wish the VM to have (GB)"
+        Get-VM -Name $vmName | Set-Vm -MemoryGB $hostPrompt
+    }
+    elseif ($uInput -eq "n" -or $uInput -eq "N") 
+    {
+        # see ya
+        Write-Host "goodbye"
+        exit
+    }
+    else
+    {
+        # error message on invalid input
+        Write-Host "No valid input detected" -ForegroundColor Yellow
+        editVM
+    }
+}
+
+function editCPU([string] $vmName)
+# edits the CPU of a VM
+{
+    $uInput = Read-Host "Would you like to edit the CPU count of the VM?"
+    if ($uInput -eq "y" -or $uInput -eq "Y")
+    {
+        $hostPrompt = Read-Host "Enter the amount of CPUs you wish the VM to have"
+        Get-VM -Name $vmName | Set-Vm -NumCpu $hostPrompt
+    }
+    elseif ($uInput -eq "n" -or $uInput -eq "N") 
+    {
+        # see ya
+        Write-Host "goodbye"
+        exit
+    }
+    else
+    {
+        # error message on invalid input
+        Write-Host "No valid input detected" -ForegroundColor Yellow
+        editVM
+    }
+}
